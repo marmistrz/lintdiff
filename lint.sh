@@ -70,6 +70,11 @@ names=(
     "mypy"
 )
 
+cur_hash=$(git rev-parse --short HEAD)
+ref_hash=$(git rev-parse --short "$BRANCH")
+
+echo "Comparing $ref_hash...$cur_hash"
+
 for i in "${!names[@]}"; do
     printf "%-20s" "${names[$i]}..."
     outputs[$i]=$(${commands[$i]} 2>&1)
