@@ -1,18 +1,15 @@
 #!/bin/bash
-# WARNING: more quick and dirty than lintdiff.sh! :)
+# a more basic version of lint.sh from marmistrz/lintdiff
 
 hline() {
     printf %"$COLUMNS"s | tr " " "-"
 }
 
 usage() {
-    echo "Usage: $0 [branch]"
+    echo "Usage: $0 <reference-branch>"
 }
 
 case $# in
-    0)
-        BRANCH="upstream/develop"
-        ;;
     1)
         if [ "$1" == "-h" ]; then
             usage
@@ -30,19 +27,14 @@ esac
 RED=$(
     tput bold
     tput setaf 1
-)
+) 2>/dev/null
 GREEN=$(
     tput bold
     tput setaf 2
-)
-RESET=$(tput sgr0)
-
-UPDATE_CMD=rebase
+) 2>/dev/null
+RESET=$(tput sgr0) 2>/dev/null
 
 nfailed=0
-notify() {
-    paplay /usr/share/sounds/freedesktop/stereo/complete.oga
-}
 
 status() {
     if [ "$1" -eq 0 ]; then
@@ -53,8 +45,6 @@ status() {
 }
 
 LINTDIFF="./lintdiff.sh -o -b $BRANCH"
-git fetch upstream
-git $UPDATE_CMD upstream/develop
 
 commands=(
     "$LINTDIFF pylint --disable=R apps golem gui scripts setup_util '*.py'"
@@ -100,6 +90,5 @@ if [ $nfailed -gt 0 ]; then
         printf "%-20s" "${names[$i]}..."
         status ${exitcode[$i]}
     done
+    exit 1
 fi
-
-notify &>/dev/null
